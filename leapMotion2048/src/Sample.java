@@ -6,10 +6,25 @@
 * between Leap Motion and you, your company or other organization.             *
 \******************************************************************************/
 
+import java.awt.AWTException;
+import java.awt.Robot;
+import java.awt.event.KeyEvent;
 import java.io.IOException;
-import java.lang.Math;
-import com.leapmotion.leap.*;
+
+import com.leapmotion.leap.CircleGesture;
+import com.leapmotion.leap.Controller;
+import com.leapmotion.leap.Finger;
+import com.leapmotion.leap.FingerList;
+import com.leapmotion.leap.Frame;
+import com.leapmotion.leap.Gesture;
 import com.leapmotion.leap.Gesture.State;
+import com.leapmotion.leap.GestureList;
+import com.leapmotion.leap.Hand;
+import com.leapmotion.leap.KeyTapGesture;
+import com.leapmotion.leap.Listener;
+import com.leapmotion.leap.ScreenTapGesture;
+import com.leapmotion.leap.SwipeGesture;
+import com.leapmotion.leap.Vector;
 
 class SampleListener extends Listener {
     public void onInit(Controller controller) {
@@ -19,9 +34,10 @@ class SampleListener extends Listener {
     public void onConnect(Controller controller) {
         System.out.println("Connected");
         controller.enableGesture(Gesture.Type.TYPE_SWIPE);
-        controller.enableGesture(Gesture.Type.TYPE_CIRCLE);
-        controller.enableGesture(Gesture.Type.TYPE_SCREEN_TAP);
-        controller.enableGesture(Gesture.Type.TYPE_KEY_TAP);
+        //controller.enableGesture(Gesture.Type.TYPE_CIRCLE);
+        //controller.enableGesture(Gesture.Type.TYPE_SCREEN_TAP);
+        //controller.enableGesture(Gesture.Type.TYPE_KEY_TAP);
+        controller.setPolicyFlags(Controller.PolicyFlag.POLICY_BACKGROUND_FRAMES);
     }
 
     public void onDisconnect(Controller controller) {
@@ -36,12 +52,12 @@ class SampleListener extends Listener {
     public void onFrame(Controller controller) {
         // Get the most recent frame and report some basic information
         Frame frame = controller.frame();
-        System.out.println("Frame id: " + frame.id()
+        /*System.out.println("Frame id: " + frame.id()
                          + ", timestamp: " + frame.timestamp()
                          + ", hands: " + frame.hands().count()
                          + ", fingers: " + frame.fingers().count()
                          + ", tools: " + frame.tools().count()
-                         + ", gestures " + frame.gestures().count());
+                         + ", gestures " + frame.gestures().count());*/
 
         if (!frame.hands().isEmpty()) {
             // Get the first hand
@@ -56,22 +72,22 @@ class SampleListener extends Listener {
                     avgPos = avgPos.plus(finger.tipPosition());
                 }
                 avgPos = avgPos.divide(fingers.count());
-                System.out.println("Hand has " + fingers.count()
-                                 + " fingers, average finger tip position: " + avgPos);
+                /*System.out.println("Hand has " + fingers.count()
+                                 + " fingers, average finger tip position: " + avgPos);*/
             }
 
             // Get the hand's sphere radius and palm position
-            System.out.println("Hand sphere radius: " + hand.sphereRadius()
-                             + " mm, palm position: " + hand.palmPosition());
+            /*System.out.println("Hand sphere radius: " + hand.sphereRadius()
+                             + " mm, palm position: " + hand.palmPosition());*/
 
             // Get the hand's normal vector and direction
             Vector normal = hand.palmNormal();
             Vector direction = hand.direction();
 
             // Calculate the hand's pitch, roll, and yaw angles
-            System.out.println("Hand pitch: " + Math.toDegrees(direction.pitch()) + " degrees, "
+            /*System.out.println("Hand pitch: " + Math.toDegrees(direction.pitch()) + " degrees, "
                              + "roll: " + Math.toDegrees(normal.roll()) + " degrees, "
-                             + "yaw: " + Math.toDegrees(direction.yaw()) + " degrees");
+                             + "yaw: " + Math.toDegrees(direction.yaw()) + " degrees");*/
         }
 
         GestureList gestures = frame.gestures();
@@ -107,11 +123,27 @@ class SampleListener extends Listener {
                     break;
                 case TYPE_SWIPE:
                     SwipeGesture swipe = new SwipeGesture(gesture);
-                    System.out.println("Swipe id: " + swipe.id()
-                               + ", " + swipe.state()
-                               + ", position: " + swipe.position()
-                               + ", direction: " + swipe.direction()
-                               + ", speed: " + swipe.speed());
+                    
+                    if(swipe.state()==Gesture.State.STATE_STOP){
+                    	try {
+							Robot robo = new Robot();
+							if(swipe.direction().getX()<=0){
+	                    		robo.keyPress(KeyEvent.VK_LEFT);
+	                    	}
+	                    	else{
+	                    		robo.keyPress(KeyEvent.VK_RIGHT);
+	                    	}
+							System.out.println("Swipe id: " + swipe.id()
+		                               + ", " + swipe.state()
+		                               + ", position: " + swipe.position()
+		                               + ", direction: " + swipe.direction()
+		                               + ", speed: " + swipe.speed());
+						} catch (AWTException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+                    	
+                    }
                     break;
                 case TYPE_SCREEN_TAP:
                     ScreenTapGesture screenTap = new ScreenTapGesture(gesture);
@@ -134,7 +166,7 @@ class SampleListener extends Listener {
         }
 
         if (!frame.hands().isEmpty() || !gestures.isEmpty()) {
-            System.out.println();
+            //System.out.println();
         }
     }
 }
