@@ -127,12 +127,21 @@ class SampleListener extends Listener {
                     if(swipe.state()==Gesture.State.STATE_STOP){
                     	try {
 							Robot robo = new Robot();
-							if(swipe.direction().getX()<=0){
-	                    		robo.keyPress(KeyEvent.VK_LEFT);
-	                    	}
-	                    	else{
-	                    		robo.keyPress(KeyEvent.VK_RIGHT);
-	                    	}
+							if(Math.abs(swipe.direction().getX())>0.75){
+								if(swipe.direction().getX()<=0){
+		                    		robo.keyPress(KeyEvent.VK_LEFT);
+		                    	}
+		                    	else{
+		                    		robo.keyPress(KeyEvent.VK_RIGHT);
+		                    	}
+							}else{
+								if(swipe.direction().getY()<=0){
+		                    		robo.keyPress(KeyEvent.VK_DOWN);
+		                    	}
+		                    	else{
+		                    		robo.keyPress(KeyEvent.VK_UP);
+		                    	}
+							}
 							System.out.println("Swipe id: " + swipe.id()
 		                               + ", " + swipe.state()
 		                               + ", position: " + swipe.position()
